@@ -1,8 +1,4 @@
 
-#include <avr/interrupt.h>
-#include <avr/io.h>
-
-
 #define NCAPTURES 128
 #define INPIN 13
 
