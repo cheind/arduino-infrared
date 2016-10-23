@@ -19,9 +19,7 @@ while not data_received:
         s[1::2] = 0
 
         plt.step(t, s)
-        plt.ylim(-2, 2)
-        plt.xlim(xmin=-0.5)
-        plt.autoscale(False)
+        plt.ylim(-0.5, 1.5)
         plt.show()
         plt.close()
 
