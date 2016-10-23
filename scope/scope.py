@@ -15,8 +15,8 @@ while not data_received:
         t *= 1e-6
 
         s = np.empty(len(t))
-        s[::2] = 0
-        s[1::2] = 1
+        s[::2] = 1
+        s[1::2] = 0
 
         plt.step(t, s)
         plt.ylim(-2, 2)
