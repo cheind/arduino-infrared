@@ -1,6 +1,11 @@
 
+// https://github.com/mmarchetti
+#include <DirectIO.h>
+
 #define NCAPTURES 128
 #define INPIN 13
+
+Input<INPIN> input;
 
 unsigned long t[NCAPTURES];
 uint8_t initialState = HIGH;
@@ -8,7 +13,7 @@ uint8_t state = HIGH;
 int32_t n = -1;
 
 void setup() {
-  pinMode(INPIN, INPUT);
+  
   Serial.begin(9600);
   while (!Serial);
 
@@ -40,10 +45,11 @@ void loop() {
   } else if (n == NCAPTURES) {
     printResults();
     reset();
-  } else {
-    uint8_t v = digitalRead(INPIN);
+  } else {    
+    uint8_t v = input.read();
+    unsigned long now = micros();
     if (v != state) {
-      t[n++] = micros();
+      t[n++] = now;
       state = v;
     }
   }
