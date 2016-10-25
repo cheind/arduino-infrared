@@ -7,36 +7,40 @@ Output<OUTPIN> output;
 
 unsigned long t[] = {
 0
-,936
+,932
 ,1784
 ,2716
-,3568
-,5392
+,3564
+,5384
 ,6240
-,7172
-,8024
+,7168
+,8020
 ,8952
-,9804
-,10736
-,11584
-,12516
-,13368
+,9800
+,10732
+,11580
+,12512
+,13364
 ,14296
 ,15148
-,16080
-,17820
-,18752
-,19600
+,16076
+,16928
+,17860
+,18712
+,19644
+,20488
 ,21424
-,22272
-,23204
+,23160
+,24096
 };
 
-#define N 24
+#define N 26
 
-int n = 0;
-volatile bool state = LOW;
-volatile bool carrier_state = LOW;
+int n;
+volatile bool state;
+volatile bool carrier_state;
+unsigned long last_state_changed;
+unsigned long state_duration;
 
 void setup() {
   output.write(LOW);  
@@ -54,33 +58,51 @@ void setup() {
   TCCR1B |= (1 << WGM12);
   // Set CS10 bit for no prescaler
   TCCR1B |= (1 << CS10);  
-  //TCCR1B |= (1 << CS12) | (1 << CS10); 
+
   // enable timer compare interrupt
   TIMSK1 |= (1 << OCIE1A);
-
-  n = 0;
-  state = LOW;
-  carrier_state = LOW;
-
   interrupts();
+
+  reset();
 }
 
 ISR(TIMER1_COMPA_vect) {
   if (!state) {
-    output.write(LOW);
     carrier_state = LOW;
+    output.write(LOW);
   } else {
     carrier_state = !carrier_state;
     output.write(carrier_state);
   }
 }
 
+void reset() {
+  noInterrupts();
+  n = 0;
+  state = LOW;
+  carrier_state = LOW;
+  last_state_changed = 0;
+  state_duration = 0;
+  interrupts();
+}
+
 void loop() {  
-  if (n == N) return;
-  
-  state = !state;
-  if (n < (N-1)) {
-    delayMicroseconds(t[n + 1] - t[n]);      
+  if (n == N) {
+    //delay(100);
+    //reset();
+    return;
   }
-  ++n;  
+
+  unsigned long now = micros();
+  unsigned long elapsed = now - last_state_changed;
+
+  if (elapsed >= state_duration) {
+    state = !state;
+    last_state_changed = now;
+    if (n < N - 1) {
+      state_duration = t[n + 1] - t[n];
+    }
+    
+    ++n;    
+  }
 }
